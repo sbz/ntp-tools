@@ -158,5 +158,20 @@ def main():
 
     ntp_request_s1()
 
+    # request most famous ntp sources
+    print(ntp_request("time.google.com"))
+    print(ntp_request("time.facebook.com"))
+    print(ntp_request("time.apple.com"))
+    print(ntp_request("time.windows.com"))
+    print(ntp_request("0.amazon.pool.ntp.org"))
+    print(ntp_request("0.freebsd.pool.ntp.org"))
+    print(ntp_request("0.netbsd.pool.ntp.org"))
+    print(ntp_request("0.openbsd.pool.ntp.org"))
+    print(ntp_request("0.centos.pool.ntp.org"))
+    print(ntp_request("0.gentoo.pool.ntp.org"))
+    print(ntp_request("0.ubuntu.pool.ntp.org"))
+    print(ntp_request("0.debian.pool.ntp.org"))
+
+
 if __name__ == "__main__":
     sys.exit(main())
