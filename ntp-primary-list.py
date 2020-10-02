@@ -8,6 +8,8 @@ import ntplib
 from ntplib import ref_id_to_text
 from ntplib import NTPException
 
+from typing import List
+from typing import Dict
 
 base = "http://support.ntp.org"
 
@@ -15,20 +17,62 @@ ntp_servers = collections.defaultdict(list)
 countries = ["fr", "us", "de", "ie ", "nl", "uk", "gb", "ch"]
 
 
-def country_code_to_name(code):
+def country_code_to_name(code: str) -> str:
+
     """
     Convert country code to human readable name
     """
     if code is None:
         return None
     code = code.strip()
-    name = [i.name for i in list(pycountry.countries) if i.alpha_2.lower() == code]
+    name = [i.name for i in list(pycountry.countries)
+            if i.alpha_2.lower() == code]
     if len(name) == 0:
         return None
     return name[0] if code is not None else None
 
 
-def ntp_request(host):
+class NTPResponse(object):
+    """
+    Class represent a NTP response packet object
+    """
+
+    def __init__(self,
+        host: str,
+        country_code: str = None,
+        *largs: List,
+        **kwargs: Dict
+    ):
+        self.host = host
+        self.country = country_code_to_name(country_code)
+        self.attrs = kwargs
+
+    @property
+    def offset(self) -> str:
+        return self.attrs.get("offset")
+
+    @property
+    def delay(self) -> str:
+        return self.attrs.get("delay")
+
+    @property
+    def root_delay(self) -> str:
+        return self.attrs.get("root_delay")
+
+    @property
+    def version(self) -> str:
+        return self.attrs.get("version")
+
+    def __str__(self) -> str:
+        return "NTPResponse(host={host}, attrs={attrs})".format(
+            host=self.host, attrs=self.attrs
+        )
+
+    def __repr__(self) -> str:
+        return "<{}>".format(self.__str__())
+
+
+def ntp_request(host: str) -> NTPResponse:
     """
     Request NTP server host to retrieve attributes
     """
@@ -72,42 +116,9 @@ def ntp_request(host):
     return NTPResponse(host, **attrs)
 
 
-class NTPResponse(object):
-    """
-    Class represent a NTP response packet object
-    """
-
-    def __init__(self, host, country_code=None, *largs, **kwargs):
-        self.host = host
-        self.country = country_code_to_name(country_code)
-        self.attrs = kwargs
-
-    @property
-    def offset(self):
-        return self.attrs.get("offset")
-
-    @property
-    def delay(self):
-        return self.attrs.get("delay")
-
-    @property
-    def root_delay(self):
-        return self.attrs.get("root_delay")
-
-    @property
-    def version(self):
-        return self.attrs.get("version")
-
-    def __str__(self):
-        return "NTPResponse(host={host}, attrs={attrs})".format(
-            host=self.host, attrs=self.attrs
-        )
-
-    def __repr(self):
-        return "<{}>".format(self.__str__())
 
 
-def ntp_get_hostname(url):
+def ntp_get_hostname(url: str) -> str:
     """
     Scrap Hostname
     """
@@ -163,6 +174,7 @@ def main():
     print(ntp_request("time.facebook.com"))
     print(ntp_request("time.apple.com"))
     print(ntp_request("time.windows.com"))
+    print(ntp_request("time.cloudflare.com"))
     print(ntp_request("0.amazon.pool.ntp.org"))
     print(ntp_request("0.freebsd.pool.ntp.org"))
     print(ntp_request("0.netbsd.pool.ntp.org"))
