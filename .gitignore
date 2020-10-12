@@ -1,0 +1,4 @@
+/bazel-bin
+/bazel-ntp-tools
+/bazel-out
+/bazel-testlogs

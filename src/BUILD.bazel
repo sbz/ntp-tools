@@ -1,0 +1,18 @@
+
+load(
+    "@py_deps//:requirements.bzl",
+    "requirement"
+)
+
+package(default_visibility = ["//visibility:public"])
+
+py_binary(
+    name = "ntp-tools",
+    srcs = ["ntp-tools.py"],
+    deps = [
+        requirement("ntplib"),
+        requirement("pycountry"),
+        requirement("requests"),
+    ],
+    python_version = "PY3",
+)
