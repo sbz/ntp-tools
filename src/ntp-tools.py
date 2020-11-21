@@ -10,6 +10,7 @@ from ntplib import NTPException
 
 from typing import List
 from typing import Dict
+from typing import Union
 
 base = "http://support.ntp.org"
 
@@ -17,8 +18,7 @@ ntp_servers = collections.defaultdict(list)
 countries = ["fr", "us", "de", "ie ", "nl", "uk", "gb", "ch"]
 
 
-def country_code_to_name(code: str) -> str:
-
+def country_code_to_name(code: str) -> Union[None, str]:
     """
     Convert country code to human readable name
     """
@@ -72,7 +72,7 @@ class NTPResponse(object):
         return "<{}>".format(self.__str__())
 
 
-def ntp_request(host: str) -> NTPResponse:
+def ntp_request(host: str) -> Union[None, NTPResponse]:
     """
     Request NTP server host to retrieve attributes
     """
@@ -88,15 +88,6 @@ def ntp_request(host: str) -> NTPResponse:
     try:
         response = client.request(host)
 
-        # print("{host}: offset={offset},delay={delay},root_delay={root_delay},leap={leap},version={version}".format(
-        #     host=host,
-        #     offset=response.offset,
-        #     delay=response.delay,
-        #     root_delay=response.root_delay,
-        #     leap=response.leap,
-        #     version=response.version
-        # ))
-
         for attr in [
             "offset",
             "delay",
@@ -111,14 +102,16 @@ def ntp_request(host: str) -> NTPResponse:
 
         attrs["ref_id"] = ref_id_to_text(attrs["ref_id"], attrs["stratum"])
     except NTPException as error:
-        pass
+        sys.stderr.write("Cannot convert reference: {}\n".format(error))
+        sys.stderr.flush()
+        return None
 
     return NTPResponse(host, **attrs)
 
 
 
 
-def ntp_get_hostname(url: str) -> str:
+def ntp_get_hostname(url: str) -> Union[None, str]:
     """
     Scrap Hostname
     """
