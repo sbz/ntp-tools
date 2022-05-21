@@ -127,12 +127,17 @@ def ntp_get_hostname(url: str) -> Union[None, str]:
     return hostname
 
 
-def ntp_request_s1():
+def ntp_request_stratum(stratum: int):
     """
-    Scrap StartumOne Time Servers
+    Scrap Startum 1 or 2 Time Servers
     """
+    stratum_map = {
+        1: 'StratumOne',
+        2: 'StratumTwo'
+    }
+
     data = requests.get(
-        "{base}/bin/view/Servers/StratumOneTimeServers".format(base=base)
+        "{base}/bin/view/Servers/{target}TimeServers".format(base=base, target=stratum_map[stratum])
     )
     html = data.text
     for line in html.split("\n"):
@@ -157,25 +162,39 @@ def ntp_request_s1():
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Tool for NTP data gathering")
+    parser.add_argument("stratum", metavar='stratum', type=int, help=" NTP startum value (1 or 2)")
+    parser.add_argument("--extra-sources", action='store_true', default=False, help=" Request only NTP famous sources")
     args = parser.parse_args()
 
-    ntp_request_s1()
+    if args.stratum != 1 and args.stratum != 2:
+        print(parser.print_help())
+        sys.exit(1)
 
-    # request most famous ntp sources
-    print(ntp_request("time.google.com"))
-    print(ntp_request("time.facebook.com"))
-    print(ntp_request("time.apple.com"))
-    print(ntp_request("time.windows.com"))
-    print(ntp_request("time.cloudflare.com"))
-    print(ntp_request("0.amazon.pool.ntp.org"))
-    print(ntp_request("0.freebsd.pool.ntp.org"))
-    print(ntp_request("0.netbsd.pool.ntp.org"))
-    print(ntp_request("0.openbsd.pool.ntp.org"))
-    print(ntp_request("0.centos.pool.ntp.org"))
-    print(ntp_request("0.gentoo.pool.ntp.org"))
-    print(ntp_request("0.ubuntu.pool.ntp.org"))
-    print(ntp_request("0.debian.pool.ntp.org"))
+    ntp_request_stratum(stratum=args.stratum)
+
+    if args.extra_sources:
+        # request most famous ntp sources
+        print(ntp_request("time.google.com"))
+        print(ntp_request("time.facebook.com"))
+        print(ntp_request("time.apple.com"))
+        print(ntp_request("time.windows.com"))
+        print(ntp_request("time.cloudflare.com"))
+        print(ntp_request("0.amazon.pool.ntp.org"))
+        print(ntp_request("0.freebsd.pool.ntp.org"))
+        print(ntp_request("0.netbsd.pool.ntp.org"))
+        print(ntp_request("0.openbsd.pool.ntp.org"))
+        print(ntp_request("0.centos.pool.ntp.org"))
+        print(ntp_request("0.gentoo.pool.ntp.org"))
+        print(ntp_request("0.ubuntu.pool.ntp.org"))
+        print(ntp_request("0.debian.pool.ntp.org"))
+        print(ntp_request("0.debian.pool.ntp.org"))
+
+        # located in France cf. https://services.renater.fr/ntp/serveurs_francais
+        print(ntp_request("ntp.midway.ovh"))
+        print(ntp_request("ntp.laas.fr"))
+        print(ntp_request("ntp.inria.fr"))
+        print(ntp_request("ntp.polytechnique.fr"))
 
 
 if __name__ == "__main__":
