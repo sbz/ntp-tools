@@ -1,4 +1,4 @@
 ntplib==0.3.4
 pycountry==19.8.18
-requests==2.22.0
+requests==2.31.0
 tox==1.6.1
